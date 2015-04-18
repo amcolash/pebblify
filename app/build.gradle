@@ -25,6 +25,10 @@ repositories {
     flatDir {
         dirs 'libs'
     }
+
+    maven {
+        url "https://oss.sonatype.org/content/groups/public/"
+    }
 }
 
 dependencies {
@@ -32,6 +36,9 @@ dependencies {
 
     // This library handles authentication and authorization
     compile 'com.spotify.sdk:spotify-auth:1.0.0-beta9@aar'
+
+    // Pebble kit library
+    compile 'com.getpebble:pebblekit:3.0.0'
 
     // All other dependencies for your app should also be here:
     compile 'com.android.support:appcompat-v7:21.0.3'

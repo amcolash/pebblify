@@ -48,9 +48,17 @@ public class MainActivity extends Activity {
       public void onClick(View v) {
         Intent intent = new Intent(MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH);
         intent.setData(Uri.parse(
-          "spotify:user:125929022:playlist:3Ok1t1aJMBDPTv6dYRGujF"));
+          "spotify:user:125929022:playlist:4rYmmpjtww5Hd3xqltiFFd"));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getBaseContext().startActivity(intent);
+      }
+    });
+
+    Button logout = (Button) findViewById(R.id.logout);
+    logout.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        AuthenticationClient.logout(getBaseContext());
       }
     });
   }
