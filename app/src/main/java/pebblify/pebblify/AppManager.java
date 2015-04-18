@@ -26,4 +26,42 @@ public class AppManager {
   public String getAuthToken() {
     return authToken;
   }
+
+  /* Spotify app state management */
+  public void playPlaylist(String id) {
+
+  }
+
+  public void playRadio(String id) {
+
+  }
+
+  public void favorite(String id) {
+
+  }
+
+  public void play() {
+
+  }
+
+  public void pause() {
+
+  }
+
+  public void next() {
+
+  }
+
+  public void previous() {
+
+  }
+
+  public void volUp() {
+
+  }
+
+  public void volDown() {
+
+  }
+
 }

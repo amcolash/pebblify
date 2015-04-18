@@ -1,9 +1,16 @@
 package pebblify.pebblify;
 
 import android.app.Activity;
+import android.app.SearchManager;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -34,6 +41,18 @@ public class MainActivity extends Activity {
     AuthenticationRequest request = builder.build();
 
     AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+
+    Button play = (Button) findViewById(R.id.play);
+    play.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent intent = new Intent(MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH);
+        intent.setData(Uri.parse(
+          "spotify:user:125929022:playlist:3Ok1t1aJMBDPTv6dYRGujF"));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getBaseContext().startActivity(intent);
+      }
+    });
   }
 
   @Override
