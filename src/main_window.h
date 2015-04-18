@@ -1,2 +1,2 @@
-void show_test(void);
-void hide_test(void);
+void show_main_window(void);
+void hide_main_window(void);

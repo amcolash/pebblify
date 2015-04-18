@@ -1,4 +1,4 @@
-#include "test.h"
+#include "main_window.h"
 #include <pebble.h>
 
 // BEGIN AUTO-GENERATED UI CODE; DO NOT MODIFY
@@ -62,18 +62,61 @@ static void destroy_ui(void) {
 }
 // END AUTO-GENERATED UI CODE
 
+//Methods for action bar
+static void click_config_provider(void *context); 
+static void my_next_click_handler();
+static void my_previous_click_handler(); 
+static void my_playpause_click_handler();
+
+static GBitmap *s_res_image_pause_icon;
+
+static bool playing; 
+
 static void handle_window_unload(Window* window) {
   destroy_ui();
 }
 
-void show_test(void) {
+void show_main_window(void) {
   initialise_ui();
+  
+  //init some more UI
+  s_res_image_pause_icon = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PAUSE_ICON);
+  action_bar_layer_set_click_config_provider(media_bar, click_config_provider);
+  
   window_set_window_handlers(s_window, (WindowHandlers) {
     .unload = handle_window_unload,
   });
+  
+  playing = false;
+  
   window_stack_push(s_window, true);
 }
 
-void hide_test(void) {
+void hide_main_window(void) {
   window_stack_remove(s_window, true);
+}
+
+void click_config_provider(void *context) {
+  window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) my_next_click_handler);
+  window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) my_playpause_click_handler);
+  window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) my_previous_click_handler); 
+}
+
+static void my_playpause_click_handler() {
+  if(playing){
+    action_bar_layer_set_icon(media_bar, BUTTON_ID_SELECT, s_res_image_play_icon);
+    playing = false;
+  }
+  else {
+    action_bar_layer_set_icon(media_bar, BUTTON_ID_SELECT, s_res_image_pause_icon);
+    playing = true; 
+  }
+}
+
+static void my_next_click_handler() {
+  
+}
+
+static void my_previous_click_handler() {
+  
 }
