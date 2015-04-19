@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import pebblify.pebblify.AppManager;
+import pebblify.pebblify.ServerCalls.ArtworkCall;
 import pebblify.pebblify.Watchers.ReceiveHandlerService;
 
 /**
@@ -50,6 +51,7 @@ public class SpotifyBroadcastReceiver extends BroadcastReceiver {
         Log.d("SONGS", trackId + ", " + artistName + ", " + albumName + ", " + trackName + ", " + trackLengthInSec);
         AppManager.getInstance().sendString(2, artistName + "|" + trackName + "|" + albumName);
         AppManager.getInstance().setCurrentTrack(trackId);
+        new ArtworkCall().execute();
       }
 
     } else if (action.equals(BroadcastTypes.PLAYBACK_STATE_CHANGED)) {
