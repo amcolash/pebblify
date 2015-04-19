@@ -48,6 +48,9 @@ static bool parse_string(char *s_string){
   int positions[2];
   positions[0] = indexOf(s_string, '|', 0);
   positions[1] = indexOf(s_string, '|', positions[0] + 1);
+  memset(fields[0], 0, 30);
+  memset(fields[1], 0, 30);
+  memset(fields[2], 0, 30);
   strncpy(fields[0], s_string, positions[0]);
   strncpy(fields[1], s_string + positions[0] + 1, positions[1] - positions[0] - 1);
   strncpy(fields[2], s_string + positions[1] + 1, strlen(s_string) - positions[1]);
@@ -55,23 +58,26 @@ static bool parse_string(char *s_string){
   return true;
 }
 
-static void sync_changed_handler(const uint32_t key, const Tuple *new_tuple, const Tuple *old_tuple, void *context) {
-  strncpy(s_string, new_tuple->value->cstring, 120);
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", s_string);
-  if(key == SONG_INFO_KEY){
+static void in_received_handler(DictionaryIterator *iter, void *context) {
+//static void sync_changed_handler(const uint32_t key, const Tuple *new_tuple, const Tuple *old_tuple, void *context) {
+  Tuple *info_tuple = dict_find(iter, SONG_INFO_KEY);
+  if(info_tuple){
+    strncpy(s_string, info_tuple->value->cstring, 120);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", s_string);
     if(parse_string(s_string)) {
       if(fields[0]) set_artist_title(fields[0]);
       if(fields[1]) set_song_title(fields[1]);
       if(fields[2]) set_album_title(fields[2]);
+      refresh_window(); 
     }
   }
 }
 
-static void sync_error_handler(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
+/*static void sync_error_handler(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
   // An error occured!
   APP_LOG(APP_LOG_LEVEL_ERROR, "sync error! %s", translate_error(app_message_error));
 }
-
+*/
 static void in_dropped_handler(AppMessageResult reason, void *context) {
   snprintf(debug_string, 64, "%s %s", "dr", translate_error(reason));
   set_debug_text(debug_string);
@@ -100,7 +106,8 @@ void init() {
   
   //test for the app msg
   app_comm_set_sniff_interval(SNIFF_INTERVAL_REDUCED);
-    
+  
+  app_message_register_inbox_received(in_received_handler);
   app_message_register_inbox_dropped(in_dropped_handler);
   app_message_register_outbox_failed(out_failed_handler);
   
@@ -116,7 +123,7 @@ void init() {
   };
 
   //Begin using AppSync
-  app_sync_init(&s_sync, s_sync_buffer, sizeof(s_sync_buffer), initial_values, ARRAY_LENGTH(initial_values), sync_changed_handler, sync_error_handler, NULL);
+ //app_sync_init(&s_sync, s_sync_buffer, sizeof(s_sync_buffer), initial_values, ARRAY_LENGTH(initial_values), sync_changed_handler, sync_error_handler, NULL);
   is_init = true; 
 }
 
@@ -125,7 +132,7 @@ void comm_deinit() {
   free(fields[1]);
   free(fields[2]);
   // Finish using AppSync
-  app_sync_deinit(&s_sync);
+  //app_sync_deinit(&s_sync);
   app_comm_set_sniff_interval(SNIFF_INTERVAL_NORMAL);
 }
 

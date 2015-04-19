@@ -1,6 +1,8 @@
 #include "main_window.h"
 #include <pebble.h>
 #include "comm.h"
+  
+  static Layer *window_layer;
 
 // BEGIN AUTO-GENERATED UI CODE; DO NOT MODIFY
 static Window *s_window;
@@ -89,6 +91,7 @@ static void handle_window_unload(Window* window) {
 void show_main_window(void) {
   initialise_ui();
   
+  window_layer = window_get_root_layer(s_window);
   //init some more UI
   s_res_image_pause_icon = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PAUSE_ICON);
   action_bar_layer_set_click_config_provider(media_bar, click_config_provider);
@@ -126,15 +129,12 @@ void set_playpause_icon() {
 }
 void set_song_title(char *s_string) {
     text_layer_set_text(s_textlayer_2, s_string);
-    layer_mark_dirty((Layer *) s_textlayer_2);
 }
 void set_artist_title(char *s_string) {
     text_layer_set_text(s_textlayer_1, s_string);
-    layer_mark_dirty((Layer *) s_textlayer_1);
 }
 void set_album_title(char *s_string) {
     text_layer_set_text(s_textlayer_3, s_string);
-    layer_mark_dirty((Layer *) s_textlayer_3);
 }
 
 //this isn't perfect, should query phone for current status
@@ -161,8 +161,14 @@ static void my_vol_down_click_handler() {
 }
 
 void set_debug_text(char *s_string) {
-  if(s_string) text_layer_set_text(s_textlayer_4, s_string);
-  layer_mark_dirty((Layer *) s_textlayer_4);
+  //if(s_string) text_layer_set_text(s_textlayer_4, s_string);
+  //layer_mark_dirty((Layer *) s_textlayer_4);
 }
 
+void refresh_window() {
+  layer_mark_dirty((Layer *) s_textlayer_1);
+  layer_mark_dirty((Layer *) s_textlayer_2);
+  layer_mark_dirty((Layer *) s_textlayer_3);
+  layer_mark_dirty((Layer *) window_layer);
+}
 
