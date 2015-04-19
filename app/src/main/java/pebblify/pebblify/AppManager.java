@@ -107,18 +107,10 @@ public class AppManager {
   }
 
   private void sendKey(final int keycode) {
-    new Thread() {
-      @Override
-      public void run() {
-        try {
-          Instrumentation inst = new Instrumentation();
-          inst.sendKeyDownUpSync(keycode);
-        } catch (Exception e) {
-          Log.e("RESUME", e.toString());
-        }
-      }
-
-    }.start();
+    Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+    intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(
+      KeyEvent.ACTION_UP, keycode));
+    context.sendBroadcast(intent);
   }
 
   public void sendString(int key, String value) {
