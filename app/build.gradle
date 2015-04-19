@@ -6,7 +6,7 @@ android {
     // that you installed in the SDK manager
 
     defaultConfig {
-        applicationId "companydomain.applicationname"
+        applicationId "pebblify.pebblify"
         minSdkVersion 14
         targetSdkVersion 21
         versionCode 1

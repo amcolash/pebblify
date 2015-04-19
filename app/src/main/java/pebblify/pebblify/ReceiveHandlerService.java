@@ -1,8 +1,12 @@
 package pebblify.pebblify;
 
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.getpebble.android.kit.PebbleKit;
 import com.getpebble.android.kit.util.PebbleDictionary;
@@ -12,24 +16,18 @@ import java.util.UUID;
 /**
  * Created by andrew on 4/18/15.
  */
-public class RecieveHandler {
-  public static final int DATA_KEY = 0;
+public class ReceiveHandlerService extends Service {
   private AppManager appManager = AppManager.getInstance();
-  private static RecieveHandler instance;
 
-  private RecieveHandler(){
-    //private because singleton
+  @Override
+  public IBinder onBind(Intent intent) {
+    return null;
   }
 
-  public static RecieveHandler getInstance() {
-    if(instance == null){
-      //create new instance
-      instance = new RecieveHandler();
-    }
-    return instance;
-  }
+  @Override
+  public void onCreate() {
+    Toast.makeText(this, "My Service Started", Toast.LENGTH_LONG).show();
 
-  public void init() {
     final Handler handler = new Handler();
     PebbleKit.registerReceivedDataHandler(appManager.getContext(), new PebbleKit.PebbleDataReceiver(appManager.getUUID()) {
 
@@ -81,5 +79,11 @@ public class RecieveHandler {
 
     });
 
+  }
+
+  @Override
+  public void onDestroy() {
+    Toast.makeText(this, "My Service Stopped", Toast.LENGTH_LONG).show();
+    Log.d("SERVICE", "onDestroy");
   }
 }

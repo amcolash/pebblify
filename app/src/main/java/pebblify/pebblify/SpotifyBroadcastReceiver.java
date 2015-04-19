@@ -8,7 +8,7 @@ import android.util.Log;
 /**
  * Created by andrew on 4/18/15.
  */
-public class SpotifyBroadcastReciever extends BroadcastReceiver {
+public class SpotifyBroadcastReceiver extends BroadcastReceiver {
   static final class BroadcastTypes {
     static final String SPOTIFY_PACKAGE = "com.spotify.music";
     static final String PLAYBACK_STATE_CHANGED = SPOTIFY_PACKAGE + ".playbackstatechanged";

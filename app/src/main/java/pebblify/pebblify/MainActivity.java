@@ -31,12 +31,12 @@ public class MainActivity extends Activity {
   private static final int REQUEST_CODE = 1337;
 
   private AppManager appManager = AppManager.getInstance();
-  private RecieveHandler recieveHandler = RecieveHandler.getInstance();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    appManager.setContext(this);
 
     if (PebbleKit.isWatchConnected(this)){
       PebbleKit.startAppOnPebble(this, appManager.getUUID());
@@ -50,8 +50,7 @@ public class MainActivity extends Activity {
 
     AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
-    appManager.setContext(this);
-    recieveHandler.init();
+    startService(new Intent(this, ReceiveHandlerService.class));
 
     Button play = (Button) findViewById(R.id.play);
     play.setOnClickListener(new View.OnClickListener() {
@@ -86,5 +85,6 @@ public class MainActivity extends Activity {
   @Override
   protected void onDestroy() {
     super.onDestroy();
+    stopService(new Intent(this, ReceiveHandlerService.class));
   }
 }
