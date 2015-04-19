@@ -1,5 +1,6 @@
 #include "main_window.h"
 #include <pebble.h>
+#include "comm.h"
 
 // BEGIN AUTO-GENERATED UI CODE; DO NOT MODIFY
 static Window *s_window;
@@ -106,10 +107,12 @@ static void my_playpause_click_handler() {
   if(playing){
     action_bar_layer_set_icon(media_bar, BUTTON_ID_SELECT, s_res_image_play_icon);
     playing = false;
+    send_to_phone(MEDIA_PAUSE, NULL);
   }
   else {
     action_bar_layer_set_icon(media_bar, BUTTON_ID_SELECT, s_res_image_pause_icon);
     playing = true; 
+    send_to_phone(MEDIA_PLAY, NULL);
   }
 }
 
@@ -120,3 +123,5 @@ static void my_next_click_handler() {
 static void my_previous_click_handler() {
   
 }
+
+

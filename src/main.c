@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "main_window.h"
+
 void handle_init(void) {
   show_main_window(); 
 }
