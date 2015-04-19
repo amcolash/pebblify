@@ -34,19 +34,19 @@ static void initialise_ui(void) {
   
   // s_textlayer_1
   s_textlayer_1 = text_layer_create(GRect(2, 0, 120, 20));
-  text_layer_set_text(s_textlayer_1, "Text layer");
+  text_layer_set_text(s_textlayer_1, "Artist");
   text_layer_set_font(s_textlayer_1, s_res_gothic_18_bold);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_textlayer_1);
   
   // s_textlayer_2
   s_textlayer_2 = text_layer_create(GRect(2, 48, 120, 60));
-  text_layer_set_text(s_textlayer_2, "Text layer");
+  text_layer_set_text(s_textlayer_2, "Song");
   text_layer_set_font(s_textlayer_2, s_res_gothic_28_bold);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_textlayer_2);
   
   // s_textlayer_3
   s_textlayer_3 = text_layer_create(GRect(2, 131, 100, 20));
-  text_layer_set_text(s_textlayer_3, "Text layer");
+  text_layer_set_text(s_textlayer_3, "Album");
   text_layer_set_font(s_textlayer_3, s_res_gothic_18_bold);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_textlayer_3);
 }

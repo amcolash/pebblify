@@ -15,3 +15,4 @@ enum {
 
 bool send_command_to_phone(int value);
 bool send_string_to_phone(char *s_string);
+void comm_deinit(); 
