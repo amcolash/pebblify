@@ -16,12 +16,17 @@ import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
+import java.util.UUID;
+
 public class MainActivity extends Activity {
 
   // TODO: Replace with your client ID
   private static final String CLIENT_ID = "647f87a9edb0446c9ba684f355f9dde7";
   // TODO: Replace with your redirect URI
   private static final String REDIRECT_URI = "pebblify://callback";
+
+  // Our app UUID
+  private static final String UUID = "b9ae6572-10e0-483f-a25c-576d5435c4a1";
 
   // Request code that will be used to verify if the result comes from correct activity
   // Can be any integer
@@ -42,15 +47,13 @@ public class MainActivity extends Activity {
 
     AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
+    appManager.setContext(this);
+
     Button play = (Button) findViewById(R.id.play);
     play.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        Intent intent = new Intent(MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH);
-        intent.setData(Uri.parse(
-          "spotify:user:125929022:playlist:4rYmmpjtww5Hd3xqltiFFd"));
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        getBaseContext().startActivity(intent);
+        appManager.playPlaylist("");
       }
     });
 
