@@ -1,9 +1,11 @@
-package pebblify.pebblify;
+package pebblify.pebblify.Watchers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import pebblify.pebblify.AppManager;
 
 /**
  * Created by andrew on 4/18/15.

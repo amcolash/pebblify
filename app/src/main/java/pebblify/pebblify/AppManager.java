@@ -1,30 +1,34 @@
 package pebblify.pebblify;
 
-import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.KeyEvent;
-import android.view.inputmethod.BaseInputConnection;
 
 import com.getpebble.android.kit.PebbleKit;
 import com.getpebble.android.kit.util.PebbleDictionary;
 
+import java.util.ArrayList;
 import java.util.UUID;
+
+import pebblify.pebblify.Models.Playlist;
+import pebblify.pebblify.ServerCalls.PlaylistCall;
+import pebblify.pebblify.ServerCalls.UserCall;
 
 /**
  * Created by andrew on 4/18/15.
  */
 public class AppManager {
   private static AppManager instance;
-  private String authToken;
   private Context context;
   private final static UUID PEBBLE_APP_UUID = UUID.fromString("1e3227f8-9195-4f77-8c53-fd16c9cba205");
+
+  private String authToken;
+  private String id;
+
   private boolean playing;
+  private ArrayList<Playlist> playlists;
 
   private String currentTrack;
 
@@ -58,6 +62,14 @@ public class AppManager {
 
   public String getAuthToken() {
     return authToken;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
   }
 
   public void setCurrentTrack(String id) {
@@ -117,6 +129,10 @@ public class AppManager {
     PebbleDictionary data = new PebbleDictionary();
     data.addString(key, value);
     PebbleKit.sendDataToPebble(context, PEBBLE_APP_UUID, data);
+  }
+
+  public void UserRequest() {
+    new UserCall().execute(authToken);
   }
 
   /*

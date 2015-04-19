@@ -23,7 +23,7 @@
         android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
 
       <receiver
-        android:name="SpotifyBroadcastReceiver"
+        android:name=".Watchers.SpotifyBroadcastReceiver"
         android:enabled="true"
         android:exported="true">
 
@@ -35,7 +35,7 @@
 
       </receiver>
 
-      <service android:enabled="true" android:name=".ReceiveHandlerService" />
+      <service android:enabled="true" android:name=".Watchers.ReceiveHandlerService" />
 
     </application>
 

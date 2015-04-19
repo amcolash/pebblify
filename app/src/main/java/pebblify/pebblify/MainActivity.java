@@ -1,23 +1,18 @@
 package pebblify.pebblify;
 
 import android.app.Activity;
-import android.app.SearchManager;
-import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.getpebble.android.kit.PebbleKit;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
-import java.util.UUID;
+import pebblify.pebblify.Watchers.ReceiveHandlerService;
 
 public class MainActivity extends Activity {
 
@@ -94,6 +89,7 @@ public class MainActivity extends Activity {
       AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
       if (response.getType() == AuthenticationResponse.Type.TOKEN) {
         appManager.setAuthToken(response.getAccessToken());
+        appManager.UserRequest();
       }
     }
   }

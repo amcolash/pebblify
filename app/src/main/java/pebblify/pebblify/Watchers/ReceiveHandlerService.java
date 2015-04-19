@@ -1,4 +1,4 @@
-package pebblify.pebblify;
+package pebblify.pebblify.Watchers;
 
 import android.app.Service;
 import android.content.Context;
@@ -12,6 +12,8 @@ import com.getpebble.android.kit.PebbleKit;
 import com.getpebble.android.kit.util.PebbleDictionary;
 
 import java.util.UUID;
+
+import pebblify.pebblify.AppManager;
 
 /**
  * Created by andrew on 4/18/15.
