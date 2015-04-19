@@ -13,6 +13,7 @@ static ActionBarLayer *media_bar;
 static TextLayer *s_textlayer_1;
 static TextLayer *s_textlayer_2;
 static TextLayer *s_textlayer_3;
+static TextLayer *s_textlayer_4;
 
 static void initialise_ui(void) {
   s_window = window_create();
@@ -49,6 +50,11 @@ static void initialise_ui(void) {
   text_layer_set_text(s_textlayer_3, "Album");
   text_layer_set_font(s_textlayer_3, s_res_gothic_18_bold);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_textlayer_3);
+  
+  // s_textlayer_4
+  s_textlayer_4 = text_layer_create(GRect(1, 91, 100, 20));
+  text_layer_set_text(s_textlayer_4, "");
+  layer_add_child(window_get_root_layer(s_window), (Layer *)s_textlayer_4);
 }
 
 static void destroy_ui(void) {
@@ -57,6 +63,7 @@ static void destroy_ui(void) {
   text_layer_destroy(s_textlayer_1);
   text_layer_destroy(s_textlayer_2);
   text_layer_destroy(s_textlayer_3);
+  text_layer_destroy(s_textlayer_4);
   gbitmap_destroy(s_res_image_next_icon);
   gbitmap_destroy(s_res_image_play_icon);
   gbitmap_destroy(s_res_image_previous_icon);
@@ -119,12 +126,15 @@ void set_playpause_icon() {
 }
 void set_song_title(char *s_string) {
     text_layer_set_text(s_textlayer_2, s_string);
+    layer_mark_dirty((Layer *) s_textlayer_2);
 }
 void set_artist_title(char *s_string) {
     text_layer_set_text(s_textlayer_1, s_string);
+    layer_mark_dirty((Layer *) s_textlayer_1);
 }
 void set_album_title(char *s_string) {
     text_layer_set_text(s_textlayer_3, s_string);
+    layer_mark_dirty((Layer *) s_textlayer_3);
 }
 
 //this isn't perfect, should query phone for current status
@@ -148,6 +158,11 @@ static void my_vol_up_click_handler() {
 
 static void my_vol_down_click_handler() {
   send_command_to_phone(MEDIA_VOLDOWN);
+}
+
+void set_debug_text(char *s_string) {
+  if(s_string) text_layer_set_text(s_textlayer_4, s_string);
+  layer_mark_dirty((Layer *) s_textlayer_4);
 }
 
 

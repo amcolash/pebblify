@@ -3,9 +3,7 @@
 enum {
   DATA_KEY = 0x0,
   STRING_KEY = 0x1,
-  SONG_KEY = 0x2,
-  ARTIST_KEY = 0x3,
-  ALBUM_KEY = 0x4,
+  SONG_INFO_KEY = 0x2,
   MEDIA_PLAYPAUSE = 0x0,
   MEDIA_PREVIOUS = 0x1,
   MEDIA_NEXT = 0x2,

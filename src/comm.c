@@ -5,9 +5,14 @@
 static bool is_init = false; 
 static bool s_wasFirstMsg;
 static bool s_dataInited;
-static char s_string[64];
+static char s_string[120];
+static char debug_string[64];
+
+//AppSync
 static AppSync s_sync;
-static uint8_t s_sync_buffer[32];
+static uint8_t s_sync_buffer[120];
+static char* tok;
+static char* fields[3];
 
 char *translate_error(AppMessageResult result) {
   switch (result) {
@@ -29,35 +34,57 @@ char *translate_error(AppMessageResult result) {
   }
 }
 
+static int indexOf(char *s_string, char delimiter, int start_index) {
+  size_t i;
+  for(i = start_index; i < strlen(s_string); i++) {
+    if(s_string[i] == delimiter){
+      return i;
+    }
+  }
+  return -1;
+}
+
+static bool parse_string(char *s_string){
+  int positions[2];
+  positions[0] = indexOf(s_string, '|', 0);
+  positions[1] = indexOf(s_string, '|', positions[0] + 1);
+  strncpy(fields[0], s_string, positions[0]);
+  strncpy(fields[1], s_string + positions[0] + 1, positions[1] - positions[0] - 1);
+  strncpy(fields[2], s_string + positions[1] + 1, strlen(s_string) - positions[1]);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "%s %s %s", fields[0], fields[1], fields[2]);
+  return true;
+}
+
 static void sync_changed_handler(const uint32_t key, const Tuple *new_tuple, const Tuple *old_tuple, void *context) {
-  strncpy(s_string, new_tuple->value->cstring, 64);
-  if(key == SONG_KEY){
-    set_song_title(s_string);
-  }
-  if(key == ARTIST_KEY) {
-    set_artist_title(s_string);
-  }
-  if(key == ALBUM_KEY) {
-    set_album_title(s_string);
+  strncpy(s_string, new_tuple->value->cstring, 120);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", s_string);
+  if(key == SONG_INFO_KEY){
+    if(parse_string(s_string)) {
+      if(fields[0]) set_artist_title(fields[0]);
+      if(fields[1]) set_song_title(fields[1]);
+      if(fields[2]) set_album_title(fields[2]);
+    }
   }
 }
 
 static void sync_error_handler(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
   // An error occured!
-  APP_LOG(APP_LOG_LEVEL_ERROR, "sync error!");
+  APP_LOG(APP_LOG_LEVEL_ERROR, "sync error! %s", translate_error(app_message_error));
 }
 
 static void in_dropped_handler(AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "App Message Dropped!");
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", translate_error(reason));
+  snprintf(debug_string, 64, "%s %s", "dr", translate_error(reason));
+  set_debug_text(debug_string);
 }
 
 static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reason, void *context) {
   if (s_wasFirstMsg && s_dataInited) {
     // Ignore, was successful
   } else {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "App Message Failed to Send!");
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", translate_error(reason));
+    snprintf(debug_string, 64, "%s %s", "sf", translate_error(reason));
+    set_debug_text(debug_string);
+ //   APP_LOG(APP_LOG_LEVEL_DEBUG, "App Message Failed to Send!");
+  //  APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", translate_error(reason));
     /*if(last_sent >= 0) {
       send_command_to_phone(last_sent);
       last_sent = -1;
@@ -70,24 +97,36 @@ static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reas
 void init() {
   // Register message handlers
   //app_message_register_inbox_received(in_received_handler);
+  
+  //test for the app msg
+  app_comm_set_sniff_interval(SNIFF_INTERVAL_REDUCED);
+    
   app_message_register_inbox_dropped(in_dropped_handler);
   app_message_register_outbox_failed(out_failed_handler);
   
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "vals %lu, %lu", app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 
+  fields[0] = calloc(1, 30);
+  fields[1] = calloc(1, 30);
+  fields[2] = calloc(1, 30);
   // Setup initial values
   Tuplet initial_values[] = {
-    TupletInteger(3, 0),
+    TupletCString(SONG_INFO_KEY, "artist|song|album"),
   };
 
-  // Begin using AppSync
+  //Begin using AppSync
   app_sync_init(&s_sync, s_sync_buffer, sizeof(s_sync_buffer), initial_values, ARRAY_LENGTH(initial_values), sync_changed_handler, sync_error_handler, NULL);
   is_init = true; 
 }
 
 void comm_deinit() {
+  free(fields[0]);
+  free(fields[1]);
+  free(fields[2]);
   // Finish using AppSync
   app_sync_deinit(&s_sync);
+  app_comm_set_sniff_interval(SNIFF_INTERVAL_NORMAL);
 }
 
 bool send_command_to_phone(int value) {
@@ -105,8 +144,10 @@ bool send_command_to_phone(int value) {
  //   retry--; 
 //  }
   if (iter == NULL) {
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "null iter");
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", translate_error(reason));
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "null iter");
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", translate_error(reason));
+      snprintf(debug_string, 64, "%s %s", "ni", translate_error(reason));
+      set_debug_text(debug_string);
       return false;
   }
   
