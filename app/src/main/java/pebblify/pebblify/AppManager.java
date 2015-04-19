@@ -28,9 +28,8 @@ public class AppManager {
   private String id;
 
   private boolean playing;
-  private ArrayList<Playlist> playlists;
-
   private String currentTrack;
+  private ArrayList<Playlist> playlists;
 
   private AppManager(){
     //private because singleton
@@ -70,6 +69,14 @@ public class AppManager {
 
   public void setId(String id) {
     this.id = id;
+  }
+
+  public ArrayList<Playlist> getPlaylists() {
+    return playlists;
+  }
+
+  public void setPlaylists(ArrayList<Playlist> playlists) {
+    this.playlists = playlists;
   }
 
   public void setCurrentTrack(String id) {

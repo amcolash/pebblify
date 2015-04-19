@@ -36,9 +36,11 @@ public class SpotifyBroadcastReceiver extends BroadcastReceiver {
 
       if (!trackId.equals(AppManager.getInstance().getCurrentTrack())) {
         Log.d("SONGS", trackId + ", " + artistName + ", " + albumName + ", " + trackName + ", " + trackLengthInSec);
-        AppManager.getInstance().sendString(2, trackName);
-        AppManager.getInstance().sendString(3, artistName);
-        AppManager.getInstance().sendString(4, albumName);
+        AppManager.getInstance().sendString(2,
+          artistName.substring(0, 30) + "|" +
+            trackName.substring(0, 30) + "|" +
+            albumName.substring(0, 30)
+          );
         AppManager.getInstance().setCurrentTrack(trackId);
       }
 

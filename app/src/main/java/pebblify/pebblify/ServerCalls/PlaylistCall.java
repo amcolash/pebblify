@@ -4,14 +4,18 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import pebblify.pebblify.AppManager;
+import pebblify.pebblify.Models.Playlist;
 
 /**
  * Created by andrew on 4/19/15.
  */
-public class PlaylistCall extends AsyncTask<String, String, JSONObject> {
+public class PlaylistCall extends AsyncTask<String, String, JSONArray> {
   public static ProgressDialog progress;
   private AppManager appManager = AppManager.getInstance();
 
@@ -26,14 +30,14 @@ public class PlaylistCall extends AsyncTask<String, String, JSONObject> {
   }
 
   @Override
-  protected JSONObject doInBackground(String... params) {
+  protected JSONArray doInBackground(String... params) {
     try {
       JSONObject p = Json.getJsonObject(
-        "https://api.spotify.com/" + appManager.getId() + "/playlists",
+        "https://api.spotify.com/v1/users/" + appManager.getId() + "/playlists",
         new String[]{"Authorization"},
-        new String[]{"Bearer " + params[0]}
+        new String[]{"Bearer " + appManager.getAuthToken()}
       );
-      return p;
+      return p.getJSONArray("items");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -41,10 +45,17 @@ public class PlaylistCall extends AsyncTask<String, String, JSONObject> {
   }
 
   @Override
-  protected void onPostExecute(JSONObject json) {
+  protected void onPostExecute(JSONArray json) {
     progress.dismiss();
     try {
-      appManager.setId(json.getString("id"));
+      ArrayList<Playlist> playlist = new ArrayList<Playlist>();
+      for(int i = 0; i < json.length(); i++) {
+        JSONObject temp = json.getJSONObject(i);
+        String name = temp.getString("name");
+        String id = temp.getString("id");
+        playlist.add(new Playlist(name, id));
+      }
+      appManager.setPlaylists(playlist);
 
     } catch (Exception e) {
       e.printStackTrace();
