@@ -18,6 +18,8 @@ import java.util.UUID;
  */
 public class ReceiveHandlerService extends Service {
   private AppManager appManager = AppManager.getInstance();
+  private Handler handler;
+  private Runnable callback;
 
   @Override
   public IBinder onBind(Intent intent) {
@@ -28,53 +30,45 @@ public class ReceiveHandlerService extends Service {
   public void onCreate() {
     Toast.makeText(this, "My Service Started", Toast.LENGTH_LONG).show();
 
-    final Handler handler = new Handler();
+    handler = new Handler();
     PebbleKit.registerReceivedDataHandler(appManager.getContext(), new PebbleKit.PebbleDataReceiver(appManager.getUUID()) {
 
       @Override
       public void receiveData(final Context context, final int transactionId, final PebbleDictionary data) {
 
-        handler.post(new Runnable() {
-
-          @Override
-          public void run() {
-
-            int i = 0;
-            while(data.getInteger(i) == null && data.getString(i) == null) {
-              i++;
-            }
-
-            Log.d("RECIEVE", "Recieved a new key(" + i + "): " + data.getInteger(i));
-
-            if (data.getInteger(i) != null) {
-              switch(data.getInteger(i).intValue()) {
-                case 0:
-                  appManager.resumePause();
-                  break;
-                case 1:
-                  appManager.previous();
-                  break;
-                case 2:
-                  appManager.next();
-                  break;
-                case 3:
-                  appManager.volDown();
-                  break;
-                case 4:
-                  appManager.volUp();
-                  break;
-                default:
-                  break;
-              }
-            } else {
-              // We got something unexpected, now what?
-              Log.e("RECIEVE", "Unsure of what to do now... Recieved a non-string!");
-            }
-
-          }
-
-        });
         PebbleKit.sendAckToPebble(appManager.getContext(), transactionId);
+
+        int i = 0;
+        while(data.getInteger(i) == null && data.getString(i) == null) {
+          i++;
+        }
+
+        Log.d("RECIEVE", "Recieved a new key(" + i + "): " + data.getInteger(i));
+
+        if (data.getInteger(i) != null) {
+          switch(data.getInteger(i).intValue()) {
+            case 0:
+              appManager.resumePause();
+              break;
+            case 1:
+              appManager.previous();
+              break;
+            case 2:
+              appManager.next();
+              break;
+            case 3:
+              appManager.volDown();
+              break;
+            case 4:
+              appManager.volUp();
+              break;
+            default:
+              break;
+          }
+        } else {
+          // We got something unexpected, now what?
+          Log.e("RECIEVE", "Unsure of what to do now... Recieved a non-string!");
+        }
       }
 
     });
@@ -84,6 +78,7 @@ public class ReceiveHandlerService extends Service {
   @Override
   public void onDestroy() {
     Toast.makeText(this, "My Service Stopped", Toast.LENGTH_LONG).show();
+    handler.removeCallbacks(callback);
     Log.d("SERVICE", "onDestroy");
   }
 }

@@ -32,7 +32,13 @@ public class SpotifyBroadcastReceiver extends BroadcastReceiver {
       String trackName = intent.getStringExtra("track");
       int trackLengthInSec = intent.getIntExtra("length", 0);
 
-      Log.d("SONGS", trackId + ", " + artistName + ", " + albumName + ", " + trackName + ", " + trackLengthInSec);
+      if (!trackId.equals(AppManager.getInstance().getCurrentTrack())) {
+        Log.d("SONGS", trackId + ", " + artistName + ", " + albumName + ", " + trackName + ", " + trackLengthInSec);
+        AppManager.getInstance().sendString(2, trackName);
+        AppManager.getInstance().sendString(3, artistName);
+        AppManager.getInstance().sendString(4, albumName);
+        AppManager.getInstance().setCurrentTrack(trackId);
+      }
 
     } else if (action.equals(BroadcastTypes.PLAYBACK_STATE_CHANGED)) {
       boolean playing = intent.getBooleanExtra("playing", false);

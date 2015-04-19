@@ -3,11 +3,16 @@ package pebblify.pebblify;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.BaseInputConnection;
+
+import com.getpebble.android.kit.PebbleKit;
+import com.getpebble.android.kit.util.PebbleDictionary;
 
 import java.util.UUID;
 
@@ -20,6 +25,8 @@ public class AppManager {
   private Context context;
   private final static UUID PEBBLE_APP_UUID = UUID.fromString("1e3227f8-9195-4f77-8c53-fd16c9cba205");
   private boolean playing;
+
+  private String currentTrack;
 
   private AppManager(){
     //private because singleton
@@ -51,6 +58,14 @@ public class AppManager {
 
   public String getAuthToken() {
     return authToken;
+  }
+
+  public void setCurrentTrack(String id) {
+    currentTrack = id;
+  }
+
+  public String getCurrentTrack() {
+    return currentTrack;
   }
 
   /* Spotify app state management */
@@ -105,5 +120,22 @@ public class AppManager {
 
     }.start();
   }
+
+  public void sendString(int key, String value) {
+    PebbleDictionary data = new PebbleDictionary();
+    data.addString(key, value);
+    PebbleKit.sendDataToPebble(context, PEBBLE_APP_UUID, data);
+  }
+
+  /*
+  PebbleKit.registerReceivedNackHandler(context, new PebbleNackReceiver(PEBBLE_APP_UUID) {
+
+    @Override
+    public void receiveNack(Context c, int transactionId) {
+      Log.i(getLocalClassName(), "Received nack for transaction " + transactionId);
+    }
+
+  });
+  */
 
 }
