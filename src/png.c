@@ -1,4 +1,3 @@
-#ifdef PBL_PLATFORM_APLITE
 #include "upng.h"
 #include "png.h"
 
@@ -121,5 +120,3 @@ GBitmap* gbitmap_create_with_png_data(uint8_t *data, int data_bytes) {
 
   return gbitmap_ptr;
 }
-
-#endif // ifdef PBL_PLATFORM_APLITE

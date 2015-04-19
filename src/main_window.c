@@ -1,8 +1,7 @@
 #include "main_window.h"
 #include <pebble.h>
-
-#include "png.h"
 #include "netdownload.h"
+#include "png.h"
 #include "comm.h"
 
   
@@ -92,7 +91,7 @@ void show_next_image() {
   // show that we are loading by showing no image
   bitmap_layer_set_bitmap(bitmap_layer, NULL);
 
-  //text_layer_set_text(text_layer, "Loading...");
+  text_layer_set_text(s_textlayer_4, "Loading...");
 
   // Unload the current image if we had one and save a pointer to this one
   if (current_bmp) {
@@ -115,7 +114,23 @@ static GBitmap *s_res_image_pause_icon;
 
 static bool playing; 
 
+static void window_load(Window *window) {
+  Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_bounds(window_layer);
+
+  /*s_textlayer_4 = text_layer_create((GRect) { .origin = { 0, 72 }, .size = { bounds.size.w, 20 } });
+  text_layer_set_text(s_textlayer_4, "Shake it!");
+  text_layer_set_text_alignment(s_textlayer_4, GTextAlignmentCenter);
+  layer_add_child(window_layer, text_layer_get_layer(s_textlayer_4));
+*/
+  bitmap_layer = bitmap_layer_create(bounds);
+  layer_add_child(window_layer, bitmap_layer_get_layer(bitmap_layer));
+  current_bmp = NULL;
+}
+
 static void handle_window_unload(Window* window) {
+  text_layer_destroy(s_textlayer_4);
+  bitmap_layer_destroy(bitmap_layer);
   destroy_ui();
 }
 
@@ -130,12 +145,12 @@ void download_complete_handler(NetDownload *download) {
   }
   current_bmp = bmp;
 
-  // Free the memory now
+ /* // Free the memory now
   #ifdef PBL_PLATFORM_APLITE
   // gbitmap_create_with_png_data will free download->data
   #else
     free(download->data);
-  #endif
+  #endif*/
   // We null it out now to avoid a double free
   download->data = NULL;
   netdownload_destroy(download);
@@ -155,10 +170,14 @@ void show_main_window(void) {
   action_bar_layer_set_click_config_provider(media_bar, click_config_provider);
   
   window_set_window_handlers(s_window, (WindowHandlers) {
+    .load = window_load,
     .unload = handle_window_unload,
   });
+  
    netdownload_initialize(download_complete_handler);
-    accel_tap_service_subscribe(tap_handler);
+    const bool animated = true;
+  window_stack_push(s_window, animated);
+  accel_tap_service_subscribe(tap_handler);
 
   playing = false;
   window_stack_push(s_window, true);

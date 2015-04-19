@@ -1,4 +1,5 @@
 #include <pebble.h>
+#define PBL_PLATFORM_APLITE 1
 #include "main_window.h"
 #include "comm.h"
 #include "netdownload.h"
