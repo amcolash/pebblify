@@ -1,9 +1,17 @@
 #pragma once
 #include <pebble.h>
-bool send_to_phone(int key, char *s_symbol);
 enum {
-  MEDIA_PLAY = 0x0,
-  MEDIA_PAUSE = 0x1,
-  MEDIA_PREVIOUS = 0x2,
-  MEDIA_NEXT = 0x3,
+  DATA_KEY = 0x0,
+  STRING_KEY = 0x1,
+  SONG_KEY = 0x2,
+  ARTIST_KEY = 0x3,
+  ALBUM_KEY = 0x4,
+  MEDIA_PLAYPAUSE = 0x0,
+  MEDIA_PREVIOUS = 0x1,
+  MEDIA_NEXT = 0x2,
+  MEDIA_VOLDOWN = 0x3,
+  MEDIA_VOLUP = 0x4,
 };
+
+bool send_command_to_phone(int value);
+bool send_string_to_phone(char *s_string);

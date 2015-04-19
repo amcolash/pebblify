@@ -39,7 +39,7 @@ static void initialise_ui(void) {
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_textlayer_1);
   
   // s_textlayer_2
-  s_textlayer_2 = text_layer_create(GRect(2, 39, 120, 60));
+  s_textlayer_2 = text_layer_create(GRect(2, 48, 120, 60));
   text_layer_set_text(s_textlayer_2, "Text layer");
   text_layer_set_font(s_textlayer_2, s_res_gothic_28_bold);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_textlayer_2);
@@ -68,6 +68,8 @@ static void click_config_provider(void *context);
 static void my_next_click_handler();
 static void my_previous_click_handler(); 
 static void my_playpause_click_handler();
+static void my_vol_up_click_handler();
+static void my_vol_down_click_handler();
 
 static GBitmap *s_res_image_pause_icon;
 
@@ -98,30 +100,54 @@ void hide_main_window(void) {
 }
 
 void click_config_provider(void *context) {
-  window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) my_next_click_handler);
+  window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) my_next_click_handler);
   window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) my_playpause_click_handler);
-  window_single_click_subscribe(BUTTON_ID_UP, (ClickHandler) my_previous_click_handler); 
+  window_single_click_subscribe(BUTTON_ID_DOWN, (ClickHandler) my_previous_click_handler); 
+  window_long_click_subscribe(BUTTON_ID_UP, 0, (ClickHandler) my_vol_up_click_handler, NULL); 
+  window_long_click_subscribe(BUTTON_ID_DOWN, 0, (ClickHandler) my_vol_down_click_handler, NULL); 
 }
 
+void set_playpause_icon() {
+    if(playing) {
+      playing = false;
+      action_bar_layer_set_icon(media_bar, BUTTON_ID_SELECT, s_res_image_play_icon);
+    }
+    else {
+      playing = true;
+      action_bar_layer_set_icon(media_bar, BUTTON_ID_SELECT, s_res_image_pause_icon);
+    }
+}
+void set_song_title(char *s_string) {
+    text_layer_set_text(s_textlayer_2, s_string);
+}
+void set_artist_title(char *s_string) {
+    text_layer_set_text(s_textlayer_1, s_string);
+}
+void set_album_title(char *s_string) {
+    text_layer_set_text(s_textlayer_3, s_string);
+}
+
+//this isn't perfect, should query phone for current status
 static void my_playpause_click_handler() {
-  if(playing){
-    action_bar_layer_set_icon(media_bar, BUTTON_ID_SELECT, s_res_image_play_icon);
+    set_playpause_icon(); 
     playing = false;
-    send_to_phone(MEDIA_PAUSE, NULL);
-  }
-  else {
-    action_bar_layer_set_icon(media_bar, BUTTON_ID_SELECT, s_res_image_pause_icon);
-    playing = true; 
-    send_to_phone(MEDIA_PLAY, NULL);
-  }
+    send_command_to_phone(MEDIA_PLAYPAUSE);
 }
 
 static void my_next_click_handler() {
-  
+  send_command_to_phone(MEDIA_NEXT);
 }
 
 static void my_previous_click_handler() {
-  
+  send_command_to_phone(MEDIA_PREVIOUS);
+}
+
+static void my_vol_up_click_handler() {
+  send_command_to_phone(MEDIA_VOLUP);
+}
+
+static void my_vol_down_click_handler() {
+  send_command_to_phone(MEDIA_VOLDOWN);
 }
 
 
