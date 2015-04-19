@@ -3,6 +3,7 @@ package pebblify.pebblify.Watchers;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -20,8 +21,12 @@ import pebblify.pebblify.AppManager;
  */
 public class ReceiveHandlerService extends Service {
   private AppManager appManager = AppManager.getInstance();
-  private Handler handler;
-  private Runnable callback;
+
+  private PebbleKit.PebbleDataReceiver mReceiver;
+  private PebbleKit.PebbleAckReceiver ackReceiver;
+  private PebbleKit.PebbleNackReceiver nackReceiver;
+
+  public static boolean waitingForResponse;
 
   @Override
   public IBinder onBind(Intent intent) {
@@ -32,12 +37,10 @@ public class ReceiveHandlerService extends Service {
   public void onCreate() {
     Toast.makeText(this, "My Service Started", Toast.LENGTH_LONG).show();
 
-    handler = new Handler();
-    PebbleKit.registerReceivedDataHandler(appManager.getContext(), new PebbleKit.PebbleDataReceiver(appManager.getUUID()) {
+    mReceiver = new PebbleKit.PebbleDataReceiver(appManager.getUUID()) {
 
       @Override
       public void receiveData(final Context context, final int transactionId, final PebbleDictionary data) {
-
         PebbleKit.sendAckToPebble(appManager.getContext(), transactionId);
 
         int i = 0;
@@ -69,18 +72,40 @@ public class ReceiveHandlerService extends Service {
           }
         } else {
           // We got something unexpected, now what?
-          Log.e("RECIEVE", "Unsure of what to do now... Recieved a non-string!");
+          Log.e("RECEIVE", "Unsure of what to do now... Received a non-string!");
         }
       }
 
-    });
+    };
+
+    ackReceiver = new PebbleKit.PebbleAckReceiver(appManager.getUUID()) {
+      @Override
+      public void receiveAck(final Context context, final int transactionId) {
+        waitingForResponse = false;
+      }
+    };
+
+    nackReceiver = new PebbleKit.PebbleNackReceiver(appManager.getUUID()) {
+      @Override
+      public void receiveNack(final Context context, final int transactionId) {
+        waitingForResponse = false;
+      }
+    };
+
+    PebbleKit.registerReceivedDataHandler(appManager.getContext(), mReceiver);
+    PebbleKit.registerReceivedAckHandler(appManager.getContext(), ackReceiver);
+    PebbleKit.registerReceivedNackHandler(appManager.getContext(), nackReceiver);
 
   }
 
+
   @Override
   public void onDestroy() {
+    super.onDestroy();
+//    unregisterReceiver(mReceiver);
+//    unregisterReceiver(ackReceiver);
+//    unregisterReceiver(nackReceiver);
     Toast.makeText(this, "My Service Stopped", Toast.LENGTH_LONG).show();
-    handler.removeCallbacks(callback);
     Log.d("SERVICE", "onDestroy");
   }
 }

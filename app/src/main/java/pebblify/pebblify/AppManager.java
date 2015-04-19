@@ -15,6 +15,7 @@ import java.util.UUID;
 import pebblify.pebblify.Models.Playlist;
 import pebblify.pebblify.ServerCalls.PlaylistCall;
 import pebblify.pebblify.ServerCalls.UserCall;
+import pebblify.pebblify.Watchers.ReceiveHandlerService;
 
 /**
  * Created by andrew on 4/18/15.
@@ -132,25 +133,16 @@ public class AppManager {
     context.sendBroadcast(intent);
   }
 
-  public void sendString(int key, String value) {
-    PebbleDictionary data = new PebbleDictionary();
-    data.addString(key, value);
-    PebbleKit.sendDataToPebble(context, PEBBLE_APP_UUID, data);
-  }
-
   public void UserRequest() {
     new UserCall().execute(authToken);
   }
 
-  /*
-  PebbleKit.registerReceivedNackHandler(context, new PebbleNackReceiver(PEBBLE_APP_UUID) {
-
-    @Override
-    public void receiveNack(Context c, int transactionId) {
-      Log.i(getLocalClassName(), "Received nack for transaction " + transactionId);
-    }
-
-  });
-  */
+  public static void sendString(int key, String value) {
+    while(ReceiveHandlerService.waitingForResponse) {} // Spin until ready
+    PebbleDictionary data = new PebbleDictionary();
+    data.addString(key, value);
+    PebbleKit.sendDataToPebble(AppManager.getInstance().getContext(), AppManager.getInstance().getUUID(), data);
+    ReceiveHandlerService.waitingForResponse = true;
+  }
 
 }

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import pebblify.pebblify.AppManager;
+import pebblify.pebblify.Watchers.ReceiveHandlerService;
 
 /**
  * Created by andrew on 4/18/15.
@@ -32,15 +33,22 @@ public class SpotifyBroadcastReceiver extends BroadcastReceiver {
       String artistName = intent.getStringExtra("artist");
       String albumName = intent.getStringExtra("album");
       String trackName = intent.getStringExtra("track");
+
+      if (trackName.length() >= 24) {
+        trackName.substring(0, 24);
+      }
+      if (artistName.length() >= 24) {
+        artistName.substring(0, 24);
+      }
+      if (albumName.length() >= 24) {
+        albumName.substring(0, 24);
+      }
+
       int trackLengthInSec = intent.getIntExtra("length", 0);
 
       if (!trackId.equals(AppManager.getInstance().getCurrentTrack())) {
         Log.d("SONGS", trackId + ", " + artistName + ", " + albumName + ", " + trackName + ", " + trackLengthInSec);
-        AppManager.getInstance().sendString(2,
-          artistName.substring(0, 30) + "|" +
-            trackName.substring(0, 30) + "|" +
-            albumName.substring(0, 30)
-          );
+        AppManager.getInstance().sendString(2, artistName + "|" + trackName + "|" + albumName);
         AppManager.getInstance().setCurrentTrack(trackId);
       }
 
