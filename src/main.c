@@ -1,12 +1,14 @@
 #include <pebble.h>
 #include "main_window.h"
 #include "comm.h"
-
+#include "netdownload.h"
 void handle_init(void) {
+  
   show_main_window(); 
 }
 
 void handle_deinit(void) {
+  netdownload_deinitialize(); // call this to avoid 20B memory leak
   hide_main_window(); 
   comm_deinit();
 }

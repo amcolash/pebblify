@@ -1,8 +1,12 @@
 #include "main_window.h"
 #include <pebble.h>
+
+#include "png.h"
+#include "netdownload.h"
 #include "comm.h"
+
   
-  static Layer *window_layer;
+static Layer *window_layer;
 
 // BEGIN AUTO-GENERATED UI CODE; DO NOT MODIFY
 static Window *s_window;
@@ -16,6 +20,7 @@ static TextLayer *s_textlayer_1;
 static TextLayer *s_textlayer_2;
 static TextLayer *s_textlayer_3;
 static TextLayer *s_textlayer_4;
+static BitmapLayer *s_bitmaplayer_1;
 
 static void initialise_ui(void) {
   s_window = window_create();
@@ -55,8 +60,11 @@ static void initialise_ui(void) {
   
   // s_textlayer_4
   s_textlayer_4 = text_layer_create(GRect(1, 91, 100, 20));
-  text_layer_set_text(s_textlayer_4, "");
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_textlayer_4);
+  
+  // s_bitmaplayer_1
+  s_bitmaplayer_1 = bitmap_layer_create(GRect(1, 12, 125, 125));
+  layer_add_child(window_get_root_layer(s_window), (Layer *)s_bitmaplayer_1);
 }
 
 static void destroy_ui(void) {
@@ -66,11 +74,34 @@ static void destroy_ui(void) {
   text_layer_destroy(s_textlayer_2);
   text_layer_destroy(s_textlayer_3);
   text_layer_destroy(s_textlayer_4);
+  bitmap_layer_destroy(s_bitmaplayer_1);
   gbitmap_destroy(s_res_image_next_icon);
   gbitmap_destroy(s_res_image_play_icon);
   gbitmap_destroy(s_res_image_previous_icon);
 }
 // END AUTO-GENERATED UI CODE
+
+//img download
+static BitmapLayer *bitmap_layer;
+static GBitmap *current_bmp;
+static char *images[] = {
+  "http://madhacks.wespetal.com/images/newimg.png"
+};
+
+void show_next_image() {
+  // show that we are loading by showing no image
+  bitmap_layer_set_bitmap(bitmap_layer, NULL);
+
+  //text_layer_set_text(text_layer, "Loading...");
+
+  // Unload the current image if we had one and save a pointer to this one
+  if (current_bmp) {
+    gbitmap_destroy(current_bmp);
+    current_bmp = NULL;
+  }
+
+  netdownload_request(images[0]);
+}
 
 //Methods for action bar
 static void click_config_provider(void *context); 
@@ -88,10 +119,37 @@ static void handle_window_unload(Window* window) {
   destroy_ui();
 }
 
+void download_complete_handler(NetDownload *download) {
+  GBitmap *bmp = gbitmap_create_with_png_data(download->data, download->length);
+     
+  bitmap_layer_set_bitmap(bitmap_layer, bmp);
+
+  // Save pointer to currently shown bitmap (to free it)
+  if (current_bmp) {
+    gbitmap_destroy(current_bmp);
+  }
+  current_bmp = bmp;
+
+  // Free the memory now
+  #ifdef PBL_PLATFORM_APLITE
+  // gbitmap_create_with_png_data will free download->data
+  #else
+    free(download->data);
+  #endif
+  // We null it out now to avoid a double free
+  download->data = NULL;
+  netdownload_destroy(download);
+}
+
+void tap_handler(AccelAxisType accel, int32_t direction) {
+  show_next_image();
+}
+
 void show_main_window(void) {
   initialise_ui();
   
   window_layer = window_get_root_layer(s_window);
+  
   //init some more UI
   s_res_image_pause_icon = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PAUSE_ICON);
   action_bar_layer_set_click_config_provider(media_bar, click_config_provider);
@@ -99,9 +157,10 @@ void show_main_window(void) {
   window_set_window_handlers(s_window, (WindowHandlers) {
     .unload = handle_window_unload,
   });
-  
+   netdownload_initialize(download_complete_handler);
+    accel_tap_service_subscribe(tap_handler);
+
   playing = false;
-  
   window_stack_push(s_window, true);
 }
 

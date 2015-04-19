@@ -9,13 +9,8 @@
     "resources": {
         "media": [
             {
-                "file": "images/play.png",
-                "name": "IMAGE_PLAY_ICON",
-                "type": "png"
-            },
-            {
-                "file": "images/pause.png",
-                "name": "IMAGE_PAUSE_ICON",
+                "file": "images/previous.png",
+                "name": "IMAGE_PREVIOUS_ICON",
                 "type": "png"
             },
             {
@@ -24,8 +19,13 @@
                 "type": "png"
             },
             {
-                "file": "images/previous.png",
-                "name": "IMAGE_PREVIOUS_ICON",
+                "file": "images/pause.png",
+                "name": "IMAGE_PAUSE_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/play.png",
+                "name": "IMAGE_PLAY_ICON",
                 "type": "png"
             }
         ]

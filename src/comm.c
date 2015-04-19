@@ -8,13 +8,10 @@ static bool s_dataInited;
 static char s_string[120];
 static char debug_string[64];
 
-//AppSync
-static AppSync s_sync;
-static uint8_t s_sync_buffer[120];
-static char* tok;
+//static uint8_t s_sync_buffer[120];
 static char* fields[3];
 
-char *translate_error(AppMessageResult result) {
+char *translate_msg_error(AppMessageResult result) {
   switch (result) {
     case APP_MSG_OK: return "APP_MSG_OK";
     case APP_MSG_SEND_TIMEOUT: return "APP_MSG_SEND_TIMEOUT";
@@ -59,7 +56,7 @@ static bool parse_string(char *s_string){
 }
 
 static void in_received_handler(DictionaryIterator *iter, void *context) {
-//static void sync_changed_handler(const uint32_t key, const Tuple *new_tuple, const Tuple *old_tuple, void *context) {
+
   Tuple *info_tuple = dict_find(iter, SONG_INFO_KEY);
   if(info_tuple){
     strncpy(s_string, info_tuple->value->cstring, 120);
@@ -73,13 +70,8 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   }
 }
 
-/*static void sync_error_handler(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
-  // An error occured!
-  APP_LOG(APP_LOG_LEVEL_ERROR, "sync error! %s", translate_error(app_message_error));
-}
-*/
 static void in_dropped_handler(AppMessageResult reason, void *context) {
-  snprintf(debug_string, 64, "%s %s", "dr", translate_error(reason));
+  snprintf(debug_string, 64, "%s %s", "dr", translate_msg_error(reason));
   set_debug_text(debug_string);
 }
 
@@ -87,14 +79,8 @@ static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reas
   if (s_wasFirstMsg && s_dataInited) {
     // Ignore, was successful
   } else {
-    snprintf(debug_string, 64, "%s %s", "sf", translate_error(reason));
+    snprintf(debug_string, 64, "%s %s", "sf", translate_msg_error(reason));
     set_debug_text(debug_string);
- //   APP_LOG(APP_LOG_LEVEL_DEBUG, "App Message Failed to Send!");
-  //  APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", translate_error(reason));
-    /*if(last_sent >= 0) {
-      send_command_to_phone(last_sent);
-      last_sent = -1;
-    }*/
   }
   
   s_wasFirstMsg = false;
@@ -102,8 +88,7 @@ static void out_failed_handler(DictionaryIterator *failed, AppMessageResult reas
 
 void init() {
   // Register message handlers
-  //app_message_register_inbox_received(in_received_handler);
-  
+ 
   //test for the app msg
   app_comm_set_sniff_interval(SNIFF_INTERVAL_REDUCED);
   
@@ -117,13 +102,7 @@ void init() {
   fields[0] = calloc(1, 30);
   fields[1] = calloc(1, 30);
   fields[2] = calloc(1, 30);
-  // Setup initial values
-  Tuplet initial_values[] = {
-    TupletCString(SONG_INFO_KEY, "artist|song|album"),
-  };
 
-  //Begin using AppSync
- //app_sync_init(&s_sync, s_sync_buffer, sizeof(s_sync_buffer), initial_values, ARRAY_LENGTH(initial_values), sync_changed_handler, sync_error_handler, NULL);
   is_init = true; 
 }
 
@@ -131,8 +110,7 @@ void comm_deinit() {
   free(fields[0]);
   free(fields[1]);
   free(fields[2]);
-  // Finish using AppSync
-  //app_sync_deinit(&s_sync);
+
   app_comm_set_sniff_interval(SNIFF_INTERVAL_NORMAL);
 }
 
@@ -144,16 +122,10 @@ bool send_command_to_phone(int value) {
   }
   
   DictionaryIterator *iter;
-  AppMessageResult reason;
- // int retry = 3; 
- //while(retry > 0 && iter != NULL) {
-    reason = app_message_outbox_begin(&iter);
- //   retry--; 
-//  }
+  AppMessageResult reason = app_message_outbox_begin(&iter);
+
   if (iter == NULL) {
-      //APP_LOG(APP_LOG_LEVEL_DEBUG, "null iter");
-      //APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", translate_error(reason));
-      snprintf(debug_string, 64, "%s %s", "ni", translate_error(reason));
+      snprintf(debug_string, 64, "%s %s", "ni", translate_msg_error(reason));
       set_debug_text(debug_string);
       return false;
   }
@@ -166,6 +138,7 @@ bool send_command_to_phone(int value) {
   return true;
 }
 
+/* need this later for playlist functionality
 bool send_string_to_phone(char *s_string) {
   if(!is_init) init(); 
   if(s_string == NULL) {
@@ -176,7 +149,7 @@ bool send_string_to_phone(char *s_string) {
   DictionaryIterator *iter;
   //int retry = 3; 
   //while(retry > 0 && iter != NULL) {
-    AppMessageResult reason = app_message_outbox_begin(&iter);
+   app_message_outbox_begin(&iter);
    // retry--; 
   //}
   if (iter == NULL) {
@@ -191,5 +164,5 @@ bool send_string_to_phone(char *s_string) {
 
   app_message_outbox_send();
   return true;
-}
+}*/
 
