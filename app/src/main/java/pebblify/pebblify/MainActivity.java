@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.getpebble.android.kit.PebbleKit;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -25,19 +26,21 @@ public class MainActivity extends Activity {
   // TODO: Replace with your redirect URI
   private static final String REDIRECT_URI = "pebblify://callback";
 
-  // Our app UUID
-  private static final String UUID = "b9ae6572-10e0-483f-a25c-576d5435c4a1";
-
   // Request code that will be used to verify if the result comes from correct activity
   // Can be any integer
   private static final int REQUEST_CODE = 1337;
 
   private AppManager appManager = AppManager.getInstance();
+  private RecieveHandler recieveHandler = RecieveHandler.getInstance();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+
+    if (PebbleKit.isWatchConnected(this)){
+      PebbleKit.startAppOnPebble(this, appManager.getUUID());
+    }
 
     AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
       AuthenticationResponse.Type.TOKEN,
@@ -48,12 +51,13 @@ public class MainActivity extends Activity {
     AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
     appManager.setContext(this);
+    recieveHandler.init();
 
     Button play = (Button) findViewById(R.id.play);
     play.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        appManager.playPlaylist("");
+        appManager.resumePause();
       }
     });
 

@@ -41,5 +41,5 @@ dependencies {
     compile 'com.getpebble:pebblekit:3.0.0'
 
     // All other dependencies for your app should also be here:
-    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:appcompat-v7:22.0.0'
 }

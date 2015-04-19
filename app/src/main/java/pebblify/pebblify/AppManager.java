@@ -1,11 +1,15 @@
 package pebblify.pebblify;
 
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.BaseInputConnection;
+
+import java.util.UUID;
 
 /**
  * Created by andrew on 4/18/15.
@@ -14,6 +18,8 @@ public class AppManager {
   private static AppManager instance;
   private String authToken;
   private Context context;
+  private final static UUID PEBBLE_APP_UUID = UUID.fromString("1e3227f8-9195-4f77-8c53-fd16c9cba205");
+  private boolean playing;
 
   private AppManager(){
     //private because singleton
@@ -27,8 +33,16 @@ public class AppManager {
     return instance;
   }
 
+  public UUID getUUID() {
+    return PEBBLE_APP_UUID;
+  }
+
   public void setContext(Context context) {
     this.context = context;
+  }
+
+  public Context getContext() {
+    return context;
   }
 
   public void setAuthToken(String authToken) {
@@ -56,29 +70,40 @@ public class AppManager {
 
   }
 
-  public void play() {
-//    BaseInputConnection  mInputConnection = new BaseInputConnection(targerView, true);
-//    mInputConnection.sendKeyEvent(new KeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY));
-  }
-
-  public void pause() {
-
+  public void resumePause() {
+    playing = !playing;
+    sendKey(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
   }
 
   public void next() {
-
+    sendKey(KeyEvent.KEYCODE_MEDIA_NEXT);
   }
 
   public void previous() {
-
+    sendKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
   }
 
   public void volUp() {
-
+    sendKey(KeyEvent.KEYCODE_VOLUME_UP);
   }
 
   public void volDown() {
+    sendKey(KeyEvent.KEYCODE_VOLUME_DOWN);
+  }
 
+  private void sendKey(final int keycode) {
+    new Thread() {
+      @Override
+      public void run() {
+        try {
+          Instrumentation inst = new Instrumentation();
+          inst.sendKeyDownUpSync(keycode);
+        } catch (Exception e) {
+          Log.e("RESUME", e.toString());
+        }
+      }
+
+    }.start();
   }
 
 }
