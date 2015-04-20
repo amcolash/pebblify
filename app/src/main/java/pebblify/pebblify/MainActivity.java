@@ -47,35 +47,11 @@ public class MainActivity extends Activity {
 
     startService(new Intent(this, ReceiveHandlerService.class));
 
-    Button play = (Button) findViewById(R.id.play);
-    play.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        appManager.playPlaylist("");
-      }
-    });
-
     Button logout = (Button) findViewById(R.id.logout);
     logout.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         AuthenticationClient.logout(getBaseContext());
-      }
-    });
-
-    Button startService = (Button) findViewById(R.id.startService);
-    startService.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        startService(new Intent(appManager.getContext(), ReceiveHandlerService.class));
-      }
-    });
-
-    Button endService = (Button) findViewById(R.id.killService);
-    endService.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        stopService(new Intent(appManager.getContext(), ReceiveHandlerService.class));
       }
     });
   }
